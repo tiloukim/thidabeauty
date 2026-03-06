@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
@@ -18,7 +18,28 @@ interface Product {
   image_url: string | null;
 }
 
+interface Order {
+  id: string;
+  user_id: string;
+  items: unknown;
+  total: number;
+  status: string;
+  created_at: string;
+}
+
+interface UserProfile {
+  id: string;
+  is_admin: boolean;
+  created_at: string;
+  email?: string;
+}
+
+type Tab = "dashboard" | "products" | "orders" | "users";
+
 export default function AdminPanel() {
+  const [activeTab, setActiveTab] = useState<Tab>("dashboard");
+
+  // Product form state
   const [nameEn, setNameEn] = useState("");
   const [nameKh, setNameKh] = useState("");
   const [brand, setBrand] = useState("");
@@ -30,8 +51,20 @@ export default function AdminPanel() {
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+
+  // Data state
   const [products, setProducts] = useState<Product[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [loaded, setLoaded] = useState(false);
+
+  // Stats
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    totalUsers: 0,
+    totalOrders: 0,
+    revenue: 0,
+  });
 
   const catEmojis: Record<string, string> = {
     skincare: "🌿",
@@ -49,10 +82,56 @@ export default function AdminPanel() {
       .select("*")
       .order("created_at", { ascending: false });
     if (data) setProducts(data);
+  }, []);
+
+  const loadOrders = useCallback(async () => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (data) setOrders(data);
+  }, []);
+
+  const loadUsers = useCallback(async () => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (data) setUsers(data);
+  }, []);
+
+  const loadAll = useCallback(async () => {
+    const supabase = createClient();
+
+    const [prodRes, orderRes, userRes] = await Promise.all([
+      supabase.from("products").select("*").order("created_at", { ascending: false }),
+      supabase.from("orders").select("*").order("created_at", { ascending: false }),
+      supabase.from("profiles").select("*").order("created_at", { ascending: false }),
+    ]);
+
+    const prods = prodRes.data || [];
+    const ords = orderRes.data || [];
+    const usrs = userRes.data || [];
+
+    setProducts(prods);
+    setOrders(ords);
+    setUsers(usrs);
+
+    setStats({
+      totalProducts: prods.length,
+      totalUsers: usrs.length,
+      totalOrders: ords.length,
+      revenue: ords.reduce((sum: number, o: Order) => sum + (o.total || 0), 0),
+    });
+
     setLoaded(true);
   }, []);
 
-  if (!loaded) loadProducts();
+  useEffect(() => {
+    if (!loaded) loadAll();
+  }, [loaded, loadAll]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,21 +176,30 @@ export default function AdminPanel() {
     loadProducts();
   };
 
+  const tabs: { key: Tab; label: string; icon: string }[] = [
+    { key: "dashboard", label: "Dashboard", icon: "📊" },
+    { key: "products", label: "Products", icon: "🛍️" },
+    { key: "orders", label: "Orders", icon: "📦" },
+    { key: "users", label: "Users", icon: "👥" },
+  ];
+
+  const statCards = [
+    { label: "Total Products", value: stats.totalProducts, icon: "🛍️", color: "var(--gold)" },
+    { label: "Total Users", value: stats.totalUsers, icon: "👥", color: "var(--blue)" },
+    { label: "Total Orders", value: stats.totalOrders, icon: "📦", color: "var(--green)" },
+    { label: "Revenue", value: `$${stats.revenue.toFixed(2)}`, icon: "💰", color: "var(--rose)" },
+  ];
+
   return (
     <div style={{ background: "var(--deep)", minHeight: "100vh" }}>
-      <div
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          padding: "40px",
-        }}
-      >
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "40px" }}>
+        {/* Header */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 40,
+            marginBottom: 32,
           }}
         >
           <div>
@@ -126,7 +214,7 @@ export default function AdminPanel() {
               ✦ Admin Dashboard
             </h1>
             <p style={{ fontSize: 13, color: "rgba(201,169,110,.5)" }}>
-              Product Management
+              Manage your store
             </p>
           </div>
           <Link
@@ -146,6 +234,44 @@ export default function AdminPanel() {
           </Link>
         </div>
 
+        {/* Tab Bar */}
+        <div
+          style={{
+            display: "flex",
+            gap: 0,
+            marginBottom: 32,
+            borderBottom: "1px solid rgba(201,169,110,.15)",
+          }}
+        >
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              style={{
+                background: "none",
+                border: "none",
+                borderBottom: activeTab === tab.key ? "2px solid var(--gold)" : "2px solid transparent",
+                color: activeTab === tab.key ? "var(--gold)" : "rgba(201,169,110,.4)",
+                padding: "12px 24px",
+                fontSize: 12,
+                letterSpacing: 1.5,
+                textTransform: "uppercase",
+                cursor: "pointer",
+                fontFamily: "'Jost',sans-serif",
+                fontWeight: activeTab === tab.key ? 600 : 400,
+                transition: "all .2s",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <span style={{ fontSize: 16 }}>{tab.icon}</span>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Message banner */}
         {message && (
           <div
             style={{
@@ -153,9 +279,7 @@ export default function AdminPanel() {
                 ? "rgba(212,135,122,.2)"
                 : "rgba(76,175,125,.2)",
               border: `1px solid ${message.startsWith("Error") ? "var(--rose)" : "var(--green)"}`,
-              color: message.startsWith("Error")
-                ? "var(--rose)"
-                : "var(--green)",
+              color: message.startsWith("Error") ? "var(--rose)" : "var(--green)",
               padding: "12px 16px",
               borderRadius: 4,
               fontSize: 13,
@@ -166,282 +290,642 @@ export default function AdminPanel() {
           </div>
         )}
 
-        <div className="admin-panel" style={{ display: "block" }}>
-          <h2>
-            ✦ <span>Add New Product</span>
-          </h2>
-          <p className="sub">Fill in the product details below</p>
-
-          <form onSubmit={handleSubmit}>
-            <div className="form-grid">
-              <div className="form-field">
-                <label>Product Name (English)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Glow Serum"
-                  value={nameEn}
-                  onChange={(e) => setNameEn(e.target.value)}
-                />
-              </div>
-              <div className="form-field">
-                <label>Product Name (Khmer)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. សេរ៉ូមមនោហរ"
-                  value={nameKh}
-                  onChange={(e) => setNameKh(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="form-grid">
-              <div className="form-field">
-                <label>Brand</label>
-                <input
-                  type="text"
-                  placeholder="e.g. La Mer"
-                  value={brand}
-                  onChange={(e) => setBrand(e.target.value)}
-                />
-              </div>
-              <div className="form-field">
-                <label>Category</label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                >
-                  <option value="skincare">Skincare</option>
-                  <option value="makeup">Makeup</option>
-                  <option value="fragrance">Fragrance</option>
-                  <option value="hair">Hair</option>
-                  <option value="body">Body</option>
-                  <option value="tools">Tools</option>
-                </select>
-              </div>
-            </div>
-            <div className="form-grid">
-              <div className="form-field">
-                <label>Price (USD)</label>
-                <div className="price-row">
-                  <div className="price-prefix">$</div>
-                  <input
-                    type="number"
-                    placeholder="0.00"
-                    step="0.01"
-                    min="0"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="form-field">
-                <label>Sale Price (optional)</label>
-                <div className="price-row">
-                  <div className="price-prefix">$</div>
-                  <input
-                    type="number"
-                    placeholder="0.00"
-                    step="0.01"
-                    min="0"
-                    value={salePrice}
-                    onChange={(e) => setSalePrice(e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="form-grid">
-              <div className="form-field">
-                <label>Badge</label>
-                <select value={badge} onChange={(e) => setBadge(e.target.value)}>
-                  <option value="">None</option>
-                  <option value="new">New</option>
-                  <option value="sale">Sale</option>
-                  <option value="bestseller">Best Seller</option>
-                </select>
-              </div>
-              <div className="form-field">
-                <label>Stock</label>
-                <input
-                  type="number"
-                  placeholder="0"
-                  min="0"
-                  value={stock}
-                  onChange={(e) => setStock(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="form-grid">
-              <div className="form-field">
-                <label>Image URL</label>
-                <input
-                  type="text"
-                  placeholder="https://..."
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                />
-              </div>
-            </div>
-            <button
-              type="submit"
-              className="add-product-btn"
-              disabled={loading}
-            >
-              {loading
-                ? "Adding..."
-                : "✦ Add Product to Store / បន្ថែមផលិតផល"}
-            </button>
-          </form>
-        </div>
-
-        {/* Product List */}
-        <div style={{ marginTop: 48 }}>
-          <h2
-            style={{
-              fontFamily: "'Cormorant Garamond',serif",
-              fontSize: 28,
-              color: "var(--gold)",
-              marginBottom: 24,
-            }}
-          >
-            Existing Products ({products.length})
-          </h2>
-          {products.length === 0 ? (
-            <p style={{ color: "rgba(201,169,110,.5)", fontSize: 14 }}>
-              No products in database yet. Add your first product above.
-            </p>
-          ) : (
+        {/* ═══ DASHBOARD TAB ═══ */}
+        {activeTab === "dashboard" && (
+          <div>
+            {/* Stats Cards */}
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
                 gap: 20,
+                marginBottom: 40,
               }}
             >
-              {products.map((p) => (
+              {statCards.map((card) => (
                 <div
-                  key={p.id}
+                  key={card.label}
                   style={{
-                    background: "rgba(255,255,255,.05)",
+                    background: "rgba(255,255,255,.04)",
                     border: "1px solid rgba(201,169,110,.15)",
-                    padding: 20,
-                    borderRadius: 4,
+                    borderRadius: 6,
+                    padding: "24px 20px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 16,
                   }}
                 >
                   <div
                     style={{
+                      width: 48,
+                      height: 48,
+                      background: "rgba(201,169,110,.08)",
+                      borderRadius: 8,
                       display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: 8,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 22,
                     }}
                   >
-                    <span
+                    {card.icon}
+                  </div>
+                  <div>
+                    <div
                       style={{
                         fontSize: 10,
                         letterSpacing: 1.5,
                         textTransform: "uppercase",
-                        color: "var(--gold)",
+                        color: "rgba(201,169,110,.5)",
+                        marginBottom: 4,
                       }}
                     >
-                      {p.brand || "No brand"}
-                    </span>
-                    {p.badge && (
-                      <span
-                        style={{
-                          fontSize: 9,
-                          background: "rgba(201,169,110,.2)",
-                          color: "var(--gold)",
-                          padding: "2px 8px",
-                          borderRadius: 2,
-                          textTransform: "uppercase",
-                          letterSpacing: 1,
-                        }}
-                      >
-                        {p.badge}
-                      </span>
-                    )}
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: "'Cormorant Garamond',serif",
-                      fontSize: 18,
-                      color: "var(--gold-light)",
-                      marginBottom: 4,
-                    }}
-                  >
-                    {p.emoji} {p.name_en}
-                  </div>
-                  {p.name_kh && (
+                      {card.label}
+                    </div>
                     <div
                       style={{
-                        fontSize: 12,
-                        color: "rgba(201,169,110,.4)",
-                        marginBottom: 8,
+                        fontFamily: "'Cormorant Garamond',serif",
+                        fontSize: 28,
+                        color: card.color,
+                        fontWeight: 500,
                       }}
                     >
-                      {p.name_kh}
+                      {card.value}
                     </div>
-                  )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Quick Actions */}
+            <h3
+              style={{
+                fontFamily: "'Cormorant Garamond',serif",
+                fontSize: 22,
+                color: "var(--gold)",
+                marginBottom: 16,
+              }}
+            >
+              Quick Actions
+            </h3>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 40 }}>
+              <button
+                onClick={() => setActiveTab("products")}
+                style={{
+                  background: "var(--gold)",
+                  color: "var(--deep)",
+                  border: "none",
+                  padding: "12px 24px",
+                  fontSize: 11,
+                  letterSpacing: 2,
+                  textTransform: "uppercase",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  fontFamily: "'Jost',sans-serif",
+                  borderRadius: 2,
+                  transition: "all .2s",
+                }}
+              >
+                ✦ Add Product
+              </button>
+              <Link
+                href="/"
+                style={{
+                  color: "var(--gold-light)",
+                  textDecoration: "none",
+                  fontSize: 11,
+                  letterSpacing: 2,
+                  textTransform: "uppercase",
+                  border: "1px solid rgba(201,169,110,.3)",
+                  padding: "12px 24px",
+                  borderRadius: 2,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  fontFamily: "'Jost',sans-serif",
+                }}
+              >
+                View Store
+              </Link>
+            </div>
+
+            {/* Recent Orders */}
+            <h3
+              style={{
+                fontFamily: "'Cormorant Garamond',serif",
+                fontSize: 22,
+                color: "var(--gold)",
+                marginBottom: 16,
+              }}
+            >
+              Recent Orders
+            </h3>
+            {orders.length === 0 ? (
+              <p style={{ color: "rgba(201,169,110,.4)", fontSize: 13, marginBottom: 40 }}>
+                No orders yet.
+              </p>
+            ) : (
+              <div
+                style={{
+                  background: "rgba(255,255,255,.03)",
+                  border: "1px solid rgba(201,169,110,.12)",
+                  borderRadius: 4,
+                  overflow: "hidden",
+                  marginBottom: 40,
+                }}
+              >
+                {orders.slice(0, 5).map((order) => (
                   <div
+                    key={order.id}
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
+                      padding: "14px 20px",
+                      borderBottom: "1px solid rgba(201,169,110,.08)",
+                      gap: 12,
                     }}
                   >
-                    <div>
-                      <span
-                        style={{
-                          fontSize: 15,
-                          fontWeight: 600,
-                          color: "var(--gold)",
-                        }}
-                      >
-                        ${p.price}
-                      </span>
-                      {p.sale_price && (
-                        <span
-                          style={{
-                            fontSize: 12,
-                            color: "var(--rose)",
-                            marginLeft: 8,
-                          }}
-                        >
-                          Sale: ${p.sale_price}
-                        </span>
-                      )}
-                    </div>
+                    <span style={{ fontSize: 13, color: "var(--gold-light)", fontFamily: "monospace" }}>
+                      #{order.id.slice(0, 8)}
+                    </span>
                     <span
                       style={{
-                        fontSize: 11,
-                        color: "rgba(201,169,110,.4)",
+                        fontSize: 10,
+                        letterSpacing: 1,
+                        textTransform: "uppercase",
+                        padding: "3px 10px",
+                        borderRadius: 2,
+                        background: order.status === "completed" ? "rgba(76,175,125,.15)" : "rgba(201,169,110,.15)",
+                        color: order.status === "completed" ? "var(--green)" : "var(--gold)",
                       }}
                     >
-                      Stock: {p.stock}
+                      {order.status}
+                    </span>
+                    <span style={{ fontSize: 14, color: "var(--gold)", fontWeight: 600 }}>
+                      ${order.total?.toFixed(2)}
+                    </span>
+                    <span style={{ fontSize: 12, color: "rgba(201,169,110,.4)" }}>
+                      {new Date(order.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <button
-                    onClick={() => deleteProduct(p.id)}
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ═══ PRODUCTS TAB ═══ */}
+        {activeTab === "products" && (
+          <div>
+            <div className="admin-panel" style={{ display: "block" }}>
+              <h2>
+                ✦ <span>Add New Product</span>
+              </h2>
+              <p className="sub">Fill in the product details below</p>
+
+              <form onSubmit={handleSubmit}>
+                <div className="form-grid">
+                  <div className="form-field">
+                    <label>Product Name (English)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Glow Serum"
+                      value={nameEn}
+                      onChange={(e) => setNameEn(e.target.value)}
+                    />
+                  </div>
+                  <div className="form-field">
+                    <label>Product Name (Khmer)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. សេរ៉ូមមនោហរ"
+                      value={nameKh}
+                      onChange={(e) => setNameKh(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="form-grid">
+                  <div className="form-field">
+                    <label>Brand</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. La Mer"
+                      value={brand}
+                      onChange={(e) => setBrand(e.target.value)}
+                    />
+                  </div>
+                  <div className="form-field">
+                    <label>Category</label>
+                    <select
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                    >
+                      <option value="skincare">Skincare</option>
+                      <option value="makeup">Makeup</option>
+                      <option value="fragrance">Fragrance</option>
+                      <option value="hair">Hair</option>
+                      <option value="body">Body</option>
+                      <option value="tools">Tools</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="form-grid">
+                  <div className="form-field">
+                    <label>Price (USD)</label>
+                    <div className="price-row">
+                      <div className="price-prefix">$</div>
+                      <input
+                        type="number"
+                        placeholder="0.00"
+                        step="0.01"
+                        min="0"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="form-field">
+                    <label>Sale Price (optional)</label>
+                    <div className="price-row">
+                      <div className="price-prefix">$</div>
+                      <input
+                        type="number"
+                        placeholder="0.00"
+                        step="0.01"
+                        min="0"
+                        value={salePrice}
+                        onChange={(e) => setSalePrice(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="form-grid">
+                  <div className="form-field">
+                    <label>Badge</label>
+                    <select value={badge} onChange={(e) => setBadge(e.target.value)}>
+                      <option value="">None</option>
+                      <option value="new">New</option>
+                      <option value="sale">Sale</option>
+                      <option value="bestseller">Best Seller</option>
+                    </select>
+                  </div>
+                  <div className="form-field">
+                    <label>Stock</label>
+                    <input
+                      type="number"
+                      placeholder="0"
+                      min="0"
+                      value={stock}
+                      onChange={(e) => setStock(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="form-grid">
+                  <div className="form-field">
+                    <label>Image URL</label>
+                    <input
+                      type="text"
+                      placeholder="https://..."
+                      value={imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className="add-product-btn"
+                  disabled={loading}
+                >
+                  {loading
+                    ? "Adding..."
+                    : "✦ Add Product to Store / បន្ថែមផលិតផល"}
+                </button>
+              </form>
+            </div>
+
+            {/* Product List */}
+            <div style={{ marginTop: 48 }}>
+              <h2
+                style={{
+                  fontFamily: "'Cormorant Garamond',serif",
+                  fontSize: 28,
+                  color: "var(--gold)",
+                  marginBottom: 24,
+                }}
+              >
+                Existing Products ({products.length})
+              </h2>
+              {products.length === 0 ? (
+                <p style={{ color: "rgba(201,169,110,.5)", fontSize: 14 }}>
+                  No products in database yet. Add your first product above.
+                </p>
+              ) : (
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                    gap: 20,
+                  }}
+                >
+                  {products.map((p) => (
+                    <div
+                      key={p.id}
+                      style={{
+                        background: "rgba(255,255,255,.05)",
+                        border: "1px solid rgba(201,169,110,.15)",
+                        padding: 20,
+                        borderRadius: 4,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          marginBottom: 8,
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: 10,
+                            letterSpacing: 1.5,
+                            textTransform: "uppercase",
+                            color: "var(--gold)",
+                          }}
+                        >
+                          {p.brand || "No brand"}
+                        </span>
+                        {p.badge && (
+                          <span
+                            style={{
+                              fontSize: 9,
+                              background: "rgba(201,169,110,.2)",
+                              color: "var(--gold)",
+                              padding: "2px 8px",
+                              borderRadius: 2,
+                              textTransform: "uppercase",
+                              letterSpacing: 1,
+                            }}
+                          >
+                            {p.badge}
+                          </span>
+                        )}
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: "'Cormorant Garamond',serif",
+                          fontSize: 18,
+                          color: "var(--gold-light)",
+                          marginBottom: 4,
+                        }}
+                      >
+                        {p.emoji} {p.name_en}
+                      </div>
+                      {p.name_kh && (
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: "rgba(201,169,110,.4)",
+                            marginBottom: 8,
+                          }}
+                        >
+                          {p.name_kh}
+                        </div>
+                      )}
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <div>
+                          <span
+                            style={{
+                              fontSize: 15,
+                              fontWeight: 600,
+                              color: "var(--gold)",
+                            }}
+                          >
+                            ${p.price}
+                          </span>
+                          {p.sale_price && (
+                            <span
+                              style={{
+                                fontSize: 12,
+                                color: "var(--rose)",
+                                marginLeft: 8,
+                              }}
+                            >
+                              Sale: ${p.sale_price}
+                            </span>
+                          )}
+                        </div>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: "rgba(201,169,110,.4)",
+                          }}
+                        >
+                          Stock: {p.stock}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => deleteProduct(p.id)}
+                        style={{
+                          marginTop: 12,
+                          background: "none",
+                          border: "1px solid rgba(212,135,122,.4)",
+                          color: "var(--rose)",
+                          padding: "6px 14px",
+                          fontSize: 10,
+                          letterSpacing: 1.5,
+                          textTransform: "uppercase",
+                          cursor: "pointer",
+                          fontFamily: "'Jost',sans-serif",
+                          borderRadius: 2,
+                          width: "100%",
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ═══ ORDERS TAB ═══ */}
+        {activeTab === "orders" && (
+          <div>
+            <h2
+              style={{
+                fontFamily: "'Cormorant Garamond',serif",
+                fontSize: 28,
+                color: "var(--gold)",
+                marginBottom: 24,
+              }}
+            >
+              All Orders ({orders.length})
+            </h2>
+            {orders.length === 0 ? (
+              <p style={{ color: "rgba(201,169,110,.4)", fontSize: 14 }}>
+                No orders yet.
+              </p>
+            ) : (
+              <div
+                style={{
+                  background: "rgba(255,255,255,.03)",
+                  border: "1px solid rgba(201,169,110,.12)",
+                  borderRadius: 4,
+                  overflow: "hidden",
+                }}
+              >
+                {/* Table Header */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
+                    padding: "12px 20px",
+                    borderBottom: "1px solid rgba(201,169,110,.15)",
+                    fontSize: 10,
+                    letterSpacing: 1.5,
+                    textTransform: "uppercase",
+                    color: "rgba(201,169,110,.5)",
+                  }}
+                >
+                  <span>Order ID</span>
+                  <span>Customer</span>
+                  <span>Status</span>
+                  <span>Total</span>
+                  <span>Date</span>
+                </div>
+                {orders.map((order) => (
+                  <div
+                    key={order.id}
                     style={{
-                      marginTop: 12,
-                      background: "none",
-                      border: "1px solid rgba(212,135,122,.4)",
-                      color: "var(--rose)",
-                      padding: "6px 14px",
-                      fontSize: 10,
-                      letterSpacing: 1.5,
-                      textTransform: "uppercase",
-                      cursor: "pointer",
-                      fontFamily: "'Jost',sans-serif",
-                      borderRadius: 2,
-                      width: "100%",
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
+                      padding: "14px 20px",
+                      borderBottom: "1px solid rgba(201,169,110,.06)",
+                      alignItems: "center",
                     }}
                   >
-                    Delete
-                  </button>
+                    <span style={{ fontSize: 13, color: "var(--gold-light)", fontFamily: "monospace" }}>
+                      #{order.id.slice(0, 8)}
+                    </span>
+                    <span style={{ fontSize: 12, color: "rgba(201,169,110,.5)", fontFamily: "monospace" }}>
+                      {order.user_id?.slice(0, 8)}...
+                    </span>
+                    <span>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          letterSpacing: 1,
+                          textTransform: "uppercase",
+                          padding: "3px 10px",
+                          borderRadius: 2,
+                          background: order.status === "completed" ? "rgba(76,175,125,.15)" : "rgba(201,169,110,.15)",
+                          color: order.status === "completed" ? "var(--green)" : "var(--gold)",
+                        }}
+                      >
+                        {order.status}
+                      </span>
+                    </span>
+                    <span style={{ fontSize: 14, color: "var(--gold)", fontWeight: 600 }}>
+                      ${order.total?.toFixed(2)}
+                    </span>
+                    <span style={{ fontSize: 12, color: "rgba(201,169,110,.4)" }}>
+                      {new Date(order.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ═══ USERS TAB ═══ */}
+        {activeTab === "users" && (
+          <div>
+            <h2
+              style={{
+                fontFamily: "'Cormorant Garamond',serif",
+                fontSize: 28,
+                color: "var(--gold)",
+                marginBottom: 24,
+              }}
+            >
+              Registered Users ({users.length})
+            </h2>
+            {users.length === 0 ? (
+              <p style={{ color: "rgba(201,169,110,.4)", fontSize: 14 }}>
+                No registered users yet.
+              </p>
+            ) : (
+              <div
+                style={{
+                  background: "rgba(255,255,255,.03)",
+                  border: "1px solid rgba(201,169,110,.12)",
+                  borderRadius: 4,
+                  overflow: "hidden",
+                }}
+              >
+                {/* Table Header */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "2fr 1fr 1fr",
+                    padding: "12px 20px",
+                    borderBottom: "1px solid rgba(201,169,110,.15)",
+                    fontSize: 10,
+                    letterSpacing: 1.5,
+                    textTransform: "uppercase",
+                    color: "rgba(201,169,110,.5)",
+                  }}
+                >
+                  <span>User ID</span>
+                  <span>Joined</span>
+                  <span>Role</span>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                {users.map((user) => (
+                  <div
+                    key={user.id}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "2fr 1fr 1fr",
+                      padding: "14px 20px",
+                      borderBottom: "1px solid rgba(201,169,110,.06)",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span style={{ fontSize: 13, color: "var(--gold-light)", fontFamily: "monospace" }}>
+                      {user.id.slice(0, 12)}...
+                    </span>
+                    <span style={{ fontSize: 12, color: "rgba(201,169,110,.4)" }}>
+                      {new Date(user.created_at).toLocaleDateString()}
+                    </span>
+                    <span>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          letterSpacing: 1,
+                          textTransform: "uppercase",
+                          padding: "3px 10px",
+                          borderRadius: 2,
+                          background: user.is_admin ? "rgba(201,169,110,.15)" : "rgba(255,255,255,.06)",
+                          color: user.is_admin ? "var(--gold)" : "rgba(201,169,110,.4)",
+                        }}
+                      >
+                        {user.is_admin ? "Admin" : "Customer"}
+                      </span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

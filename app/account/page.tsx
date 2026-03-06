@@ -10,17 +10,25 @@ export default async function AccountPage() {
 
   if (!user) redirect("/login");
 
-  const { data: orders } = await supabase
-    .from("orders")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+  const [{ data: orders }, { data: profile }] = await Promise.all([
+    supabase
+      .from("orders")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", user.id)
+      .single(),
+  ]);
 
   return (
     <AccountClient
       email={user.email ?? ""}
       userId={user.id}
       orders={orders ?? []}
+      isAdmin={profile?.is_admin ?? false}
     />
   );
 }

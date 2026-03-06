@@ -16,10 +16,12 @@ export default function AccountClient({
   email,
   userId,
   orders,
+  isAdmin,
 }: {
   email: string;
   userId: string;
   orders: Order[];
+  isAdmin: boolean;
 }) {
   const router = useRouter();
 
@@ -84,6 +86,38 @@ export default function AccountClient({
             </div>
           </div>
         </div>
+
+        {/* Admin Section */}
+        {isAdmin && (
+          <div className="account-section" style={{ background: "var(--deep)", border: "1px solid rgba(201,169,110,.25)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <h2 style={{ color: "var(--gold)", marginBottom: 4 }}>✦ Admin</h2>
+                <p style={{ fontSize: 12, color: "rgba(201,169,110,.5)", margin: 0 }}>
+                  Manage products, orders, and users
+                </p>
+              </div>
+              <Link
+                href="/admin"
+                style={{
+                  background: "var(--gold)",
+                  color: "var(--deep)",
+                  textDecoration: "none",
+                  padding: "10px 24px",
+                  fontSize: 11,
+                  letterSpacing: 2,
+                  textTransform: "uppercase",
+                  fontWeight: 700,
+                  fontFamily: "'Jost',sans-serif",
+                  borderRadius: 2,
+                  transition: "all .2s",
+                }}
+              >
+                Open Dashboard →
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Order History */}
         <div className="account-section">
