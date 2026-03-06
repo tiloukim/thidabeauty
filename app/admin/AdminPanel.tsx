@@ -72,6 +72,9 @@ export default function AdminPanel() {
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
   const [usersLoaded, setUsersLoaded] = useState(false);
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ full_name: "", email: "", phone: "", is_admin: false });
+  const [editSaving, setEditSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   // Stats
@@ -131,6 +134,48 @@ export default function AdminPanel() {
       // silently fail
     }
   }, [usersLoaded]);
+
+  const startEditUser = (user: AdminUser) => {
+    setEditingUser(user.id);
+    setEditForm({
+      full_name: user.full_name || "",
+      email: user.email || "",
+      phone: user.phone || "",
+      is_admin: user.is_admin,
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingUser(null);
+  };
+
+  const saveUser = async (userId: string) => {
+    setEditSaving(true);
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, ...editForm }),
+      });
+      if (res.ok) {
+        setAdminUsers((prev) =>
+          prev.map((u) =>
+            u.id === userId
+              ? { ...u, full_name: editForm.full_name || null, email: editForm.email, phone: editForm.phone || null, is_admin: editForm.is_admin }
+              : u
+          )
+        );
+        setEditingUser(null);
+        setMessage("User updated successfully!");
+      } else {
+        const data = await res.json();
+        setMessage(`Error: ${data.error}`);
+      }
+    } catch {
+      setMessage("Error: Failed to update user");
+    }
+    setEditSaving(false);
+  };
 
   const loadAll = useCallback(async () => {
     const supabase = createClient();
@@ -1006,66 +1051,188 @@ export default function AdminPanel() {
                           background: "rgba(0,0,0,.15)",
                         }}
                       >
-                        {/* Info Grid */}
-                        <div
-                          style={{
-                            display: "grid",
-                            gridTemplateColumns: "1fr 1fr 1fr",
-                            gap: 16,
-                            marginBottom: 20,
-                          }}
-                        >
+                        {/* Edit / View toggle */}
+                        {editingUser === user.id ? (
+                          /* ── EDIT MODE ── */
                           <div>
-                            <div style={labelStyle}>Name</div>
-                            <div style={valueStyle}>
-                              {user.full_name || "Not set"}
-                            </div>
-                          </div>
-                          <div>
-                            <div style={labelStyle}>Email</div>
-                            <div style={valueStyle}>{user.email}</div>
-                          </div>
-                          <div>
-                            <div style={labelStyle}>Phone</div>
-                            <div style={valueStyle}>
-                              {user.phone || "Not set"}
-                            </div>
-                          </div>
-                          <div>
-                            <div style={labelStyle}>User ID</div>
                             <div
                               style={{
-                                ...valueStyle,
-                                fontFamily: "monospace",
-                                fontSize: 11,
+                                display: "grid",
+                                gridTemplateColumns: "1fr 1fr",
+                                gap: 16,
+                                marginBottom: 16,
                               }}
                             >
-                              {user.id}
+                              <div className="form-field">
+                                <label>Full Name</label>
+                                <input
+                                  type="text"
+                                  placeholder="Full name"
+                                  value={editForm.full_name}
+                                  onChange={(e) =>
+                                    setEditForm({ ...editForm, full_name: e.target.value })
+                                  }
+                                />
+                              </div>
+                              <div className="form-field">
+                                <label>Email</label>
+                                <input
+                                  type="email"
+                                  placeholder="Email address"
+                                  value={editForm.email}
+                                  onChange={(e) =>
+                                    setEditForm({ ...editForm, email: e.target.value })
+                                  }
+                                />
+                              </div>
+                              <div className="form-field">
+                                <label>Phone</label>
+                                <input
+                                  type="text"
+                                  placeholder="Phone number"
+                                  value={editForm.phone}
+                                  onChange={(e) =>
+                                    setEditForm({ ...editForm, phone: e.target.value })
+                                  }
+                                />
+                              </div>
+                              <div className="form-field">
+                                <label>Role</label>
+                                <select
+                                  value={editForm.is_admin ? "admin" : "customer"}
+                                  onChange={(e) =>
+                                    setEditForm({ ...editForm, is_admin: e.target.value === "admin" })
+                                  }
+                                >
+                                  <option value="customer">Customer</option>
+                                  <option value="admin">Admin</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div style={{ display: "flex", gap: 10 }}>
+                              <button
+                                onClick={() => saveUser(user.id)}
+                                disabled={editSaving}
+                                style={{
+                                  background: "var(--gold)",
+                                  color: "var(--deep)",
+                                  border: "none",
+                                  padding: "10px 24px",
+                                  fontSize: 11,
+                                  letterSpacing: 2,
+                                  textTransform: "uppercase",
+                                  fontWeight: 700,
+                                  cursor: "pointer",
+                                  fontFamily: "'Jost',sans-serif",
+                                  borderRadius: 2,
+                                  opacity: editSaving ? 0.6 : 1,
+                                }}
+                              >
+                                {editSaving ? "Saving..." : "Save Changes"}
+                              </button>
+                              <button
+                                onClick={cancelEdit}
+                                style={{
+                                  background: "none",
+                                  border: "1px solid rgba(201,169,110,.3)",
+                                  color: "var(--gold-light)",
+                                  padding: "10px 24px",
+                                  fontSize: 11,
+                                  letterSpacing: 2,
+                                  textTransform: "uppercase",
+                                  cursor: "pointer",
+                                  fontFamily: "'Jost',sans-serif",
+                                  borderRadius: 2,
+                                }}
+                              >
+                                Cancel
+                              </button>
                             </div>
                           </div>
+                        ) : (
+                          /* ── VIEW MODE ── */
                           <div>
-                            <div style={labelStyle}>Joined</div>
-                            <div style={valueStyle}>
-                              {new Date(user.created_at).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
-                              )}
+                            <div
+                              style={{
+                                display: "grid",
+                                gridTemplateColumns: "1fr 1fr 1fr",
+                                gap: 16,
+                                marginBottom: 20,
+                              }}
+                            >
+                              <div>
+                                <div style={labelStyle}>Name</div>
+                                <div style={valueStyle}>
+                                  {user.full_name || "Not set"}
+                                </div>
+                              </div>
+                              <div>
+                                <div style={labelStyle}>Email</div>
+                                <div style={valueStyle}>{user.email}</div>
+                              </div>
+                              <div>
+                                <div style={labelStyle}>Phone</div>
+                                <div style={valueStyle}>
+                                  {user.phone || "Not set"}
+                                </div>
+                              </div>
+                              <div>
+                                <div style={labelStyle}>User ID</div>
+                                <div
+                                  style={{
+                                    ...valueStyle,
+                                    fontFamily: "monospace",
+                                    fontSize: 11,
+                                  }}
+                                >
+                                  {user.id}
+                                </div>
+                              </div>
+                              <div>
+                                <div style={labelStyle}>Joined</div>
+                                <div style={valueStyle}>
+                                  {new Date(user.created_at).toLocaleDateString(
+                                    "en-US",
+                                    {
+                                      year: "numeric",
+                                      month: "long",
+                                      day: "numeric",
+                                    }
+                                  )}
+                                </div>
+                              </div>
+                              <div>
+                                <div style={labelStyle}>Total Orders</div>
+                                <div style={valueStyle}>
+                                  {user.orders.length}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                          <div>
-                            <div style={labelStyle}>Total Orders</div>
-                            <div style={valueStyle}>
-                              {user.orders.length}
-                            </div>
-                          </div>
-                        </div>
 
-                        {/* Order History */}
-                        <div>
+                            {/* Edit Button */}
+                            <button
+                              onClick={() => startEditUser(user)}
+                              style={{
+                                background: "none",
+                                border: "1px solid rgba(201,169,110,.3)",
+                                color: "var(--gold)",
+                                padding: "8px 20px",
+                                fontSize: 10,
+                                letterSpacing: 2,
+                                textTransform: "uppercase",
+                                cursor: "pointer",
+                                fontFamily: "'Jost',sans-serif",
+                                borderRadius: 2,
+                                marginBottom: 20,
+                              }}
+                            >
+                              Edit User
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Order History (always visible) */}
+                        <div style={{ marginTop: editingUser === user.id ? 20 : 0 }}>
                           <div
                             style={{
                               fontSize: 10,
