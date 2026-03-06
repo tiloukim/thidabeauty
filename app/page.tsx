@@ -551,53 +551,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* LOYALTY PROGRAM */}
-      <div className="loyalty-section" id="loyalty-anchor">
-        <div className="loyalty-inner">
-          <div className="loyalty-left">
-            <span className="tag">{t('\u2726 Thida Rewards', '\u2726 \u179A\u1784\u17D2\u179C\u17B6\u1793\u17CB\u1790\u17B8\u178F\u17B6')}</span>
-            <h2>{t('Beauty That Rewards You', '\u179F\u1798\u17D2\u179A\u179F\u17CB\u178A\u17C2\u179B\u1795\u17D2\u178F\u179B\u17CB\u179A\u1784\u17D2\u179C\u17B6\u1793\u17CB')}</h2>
-            <p className="kh">{'\u179F\u1798\u17D2\u179A\u179F\u17CB\u178A\u17C2\u179B\u1795\u17D2\u178F\u179B\u17CB\u179A\u1784\u17D2\u179C\u17B6\u1793\u17CB'}</p>
-            <p>{t('Earn points on every purchase, unlock exclusive perks & rise through our loyalty tiers.', '\u1794\u17D2\u179A\u1798\u17BC\u179B\u1796\u17B7\u1793\u17D2\u1791\u17BB\u179A\u17C0\u1784\u179A\u17B6\u179B\u17CB\u1780\u17B6\u179A\u1791\u17B7\u1789 \u178A\u17C4\u17C7\u179F\u17C4\u17A2\u178F\u17D2\u1790\u1794\u17D2\u179A\u1799\u17C4\u1787\u1793\u17CD & \u1785\u17BC\u179B\u178A\u17C6\u178E\u17B6\u1780\u17CB\u1780\u17B6\u179B\u1781\u17D2\u1796\u179F\u17CB')}</p>
-            <div className="tier-cards">
-              <div className="tier-card"><div className="tier-icon">{'\u{1F33F}'}</div><div className="tier-name">Silver</div><div className="tier-pts">0&ndash;499 pts</div><div className="tier-benefits">5% back<br />Free shipping</div></div>
-              <div className="tier-card active-tier"><div className="tier-icon">{'\u2726'}</div><div className="tier-name">Gold</div><div className="tier-pts">500&ndash;1999 pts</div><div className="tier-benefits">10% back<br />Early access<br />Birthday gift</div></div>
-              <div className="tier-card"><div className="tier-icon">{'\u{1F48E}'}</div><div className="tier-name">Diamond</div><div className="tier-pts">2000+ pts</div><div className="tier-benefits">15% back<br />VIP events<br />Free samples</div></div>
-            </div>
-          </div>
-          <div>
-            <div className="loyalty-progress-box">
-              <div className="lp-header">
-                <div><div className="pts-big">120</div><div className="pts-label">{t('Your Points', '\u1796\u17B7\u1793\u17D2\u1791\u17BB\u179A\u1794\u179F\u17CB\u17A2\u17D2\u1793\u1780')}</div></div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 11, color: 'rgba(201,169,110,.5)', letterSpacing: 1 }}>{t('GOLD MEMBER', '\u179F\u1798\u17B6\u1787\u17B7\u1780\u1798\u17B6\u179F')}</div>
-                  <div style={{ fontSize: 10, color: 'var(--green)', marginTop: 4 }}>{'\u2726'} Active</div>
-                </div>
-              </div>
-              <div className="progress-bar-wrap"><div className="progress-bar-fill" style={{ width: '6%' }} /></div>
-              <div className="progress-label"><span>120 pts</span><span>2000 for Diamond {'\u{1F48E}'}</span></div>
-              <div className="lp-perks">
-                {[
-                  { checked: true, text: t('10% cashback on every order', '10% \u179F\u17C6\u178E\u1784\u17CB\u179B\u17BE\u1780\u17B6\u179A\u1794\u1789\u17D2\u1787\u17B6\u1791\u17B7\u1789') },
-                  { checked: true, text: t('Free shipping on all orders', '\u178A\u17B9\u1780\u1787\u1789\u17D2\u1787\u17BC\u1793\u17A5\u178F\u1782\u17B7\u178F\u1790\u17D2\u179B\u17C3') },
-                  { checked: true, text: t('Birthday surprise gift', '\u17A2\u17C6\u178E\u17C4\u1799\u1790\u17D2\u1784\u17C3\u1781\u17BD\u1794\u1780\u17C6\u178E\u17BE\u178F') },
-                  { checked: false, text: t('VIP events & previews (Diamond)', '\u1796\u17D2\u179A\u17B9\u178F\u17D2\u178F\u17B7\u1780\u17B6\u179A\u178E\u17CD VIP (Diamond)') },
-                ].map((p, i) => (
-                  <div key={i} className="lp-perk">
-                    <div className="ck" style={!p.checked ? { background: 'rgba(201,169,110,.05)', borderColor: 'rgba(201,169,110,.2)', color: 'var(--muted)' } : {}}>
-                      {p.checked ? '\u2713' : '\u25CB'}
-                    </div>
-                    <span style={!p.checked ? { color: 'rgba(255,255,255,.3)' } : {}}>{p.text}</span>
-                  </div>
-                ))}
-              </div>
-              <button className="earn-btn" onClick={() => document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' })}>
-                {t('Earn More Points \u2192', '\u1794\u17D2\u179A\u1798\u17BC\u179B\u1796\u17B7\u1793\u17D2\u1791\u17BB\u1794\u1793\u17D2\u1790\u17C2\u1798 \u2192')}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* LOYALTY PROGRAM - hidden */}
 
       {/* REFERRAL - hidden */}
 
