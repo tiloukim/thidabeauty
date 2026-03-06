@@ -462,7 +462,7 @@ export default function HomePage() {
       {/* SALE BANNER - hidden */}
 
       {/* EDITORIAL FEATURE */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 480 }}>
+      <div className="editorial-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 480 }}>
         {[
           { img: 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=900&q=80&fit=crop', tag: 'New Collection', title: 'Skincare', em: 'Essentials', cat: 'skincare' },
           { img: 'https://images.unsplash.com/photo-1503236823255-94609f598e71?w=900&q=80&fit=crop', tag: 'Trending Now', title: 'Makeup', em: 'Must-Haves', cat: 'makeup' },
