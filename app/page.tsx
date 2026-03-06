@@ -207,7 +207,7 @@ export default function HomePage() {
       <div className="lang-bar">
         <div className="lang-bar-left">
           <span>{'\u{1F4CD}'} Phnom Penh, Cambodia</span>
-          <a href="#">{t('Track Order', '\u178F\u17B6\u1798\u178A\u17B6\u1793\u1780\u17B6\u179A\u1794\u1789\u17D2\u1787\u17B6\u1791\u17B7\u1789')}</a>
+          <Link href="/track-order">{t('Track Order', '\u178F\u17B6\u1798\u178A\u17B6\u1793\u1780\u17B6\u179A\u1794\u1789\u17D2\u1787\u17B6\u1791\u17B7\u1789')}</Link>
           <a href="#">{t('Help', '\u1787\u17C6\u1793\u17BD\u1799')}</a>
         </div>
         <div className="lang-bar-right"></div>
@@ -611,7 +611,8 @@ export default function HomePage() {
           <div className="footer-col">
             <h4>{t('Help', '\u1787\u17C6\u1793\u17BD\u1799')}</h4>
             <ul>
-              {[t('Track Order', '\u178F\u17B6\u1798\u178A\u17B6\u1793'), t('Returns', '\u178F\u17D2\u179A\u17A1\u1794\u17CB & \u1794\u17D2\u178A\u17BC\u179A'), 'FAQ', t('Contact Us', '\u1791\u17C6\u1793\u17B6\u1780\u17CB\u1791\u17C6\u1793\u1784')].map(item => (
+              <li><Link href="/track-order">{t('Track Order', '\u178F\u17B6\u1798\u178A\u17B6\u1793')}</Link></li>
+              {[t('Returns', '\u178F\u17D2\u179A\u17A1\u1794\u17CB & \u1794\u17D2\u178A\u17BC\u179A'), 'FAQ', t('Contact Us', '\u1791\u17C6\u1793\u17B6\u1780\u17CB\u1791\u17C6\u1793\u1784')].map(item => (
                 <li key={item}><a href="#">{item}</a></li>
               ))}
             </ul>
