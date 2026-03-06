@@ -524,32 +524,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* INSTAGRAM FEED */}
-      <div className="insta-section">
-        <div className="insta-header">
-          <div>
-            <div className="section-title">{t('Shop Our Feed', '\u1791\u17B7\u1789\u1796\u17B8 Feed \u179A\u1794\u179F\u17CB\u1799\u17BE\u1784')}</div>
-            <div className="section-title-kh">{'\u1791\u17B7\u1789\u1796\u17B8 Feed \u179A\u1794\u179F\u17CB\u1799\u17BE\u1784'}</div>
-          </div>
-          <a href="#" style={{ fontSize: 14, color: 'var(--gold)', textDecoration: 'none', letterSpacing: 2 }}>@thidabeauty.kh {'\u2197'}</a>
-        </div>
-        <div className="insta-grid">
-          {[
-            'photo-1487412912498-0447578fcca8',
-            'photo-1512496015851-a90fb38ba796',
-            'photo-1571781926291-c477ebfd024b',
-            'photo-1522337360788-8b13dee7a37e',
-            'photo-1556228578-8c89e6adf883',
-            'photo-1599305445671-ac291c95aaa9',
-          ].map((id, i) => (
-            <div key={i} className="insta-item">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`https://images.unsplash.com/${id}?w=400&q=80&fit=crop`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="beauty" />
-              <div className="insta-overlay"><span className="icon">{'\u{1F6CD}\uFE0F'}</span><span>Shop Now</span></div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* INSTAGRAM FEED - hidden */}
 
       {/* LOYALTY PROGRAM - hidden */}
 
