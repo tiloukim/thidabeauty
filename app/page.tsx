@@ -49,7 +49,7 @@ export default function HomePage() {
 
   // App state
   const [lang, setLangState] = useState<'en' | 'kh'>('en');
-  const [products] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [activeFilter, setActiveFilter] = useState('all');
   const [activeCategory, setActiveCategory] = useState('all');
@@ -86,6 +86,29 @@ export default function HomePage() {
       setUser(session?.user ?? null);
     });
     return () => subscription.unsubscribe();
+  }, []);
+
+  // Load products from DB and merge with hardcoded ones
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.from('products').select('*').order('created_at', { ascending: false }).then(({ data }) => {
+      if (data && data.length > 0) {
+        const dbProducts: Product[] = data.map((p: { id: number; name_en: string; name_kh: string | null; brand: string | null; category: string; price: number; sale_price: number | null; badge: string | null; emoji: string | null; stock: number; image_url: string | null }) => ({
+          id: 1000 + p.id,
+          nameEn: p.name_en,
+          nameKh: p.name_kh || p.name_en,
+          brand: p.brand || '',
+          category: p.category,
+          price: p.price,
+          sale: p.sale_price,
+          badge: p.badge,
+          emoji: p.emoji || '',
+          stock: p.stock,
+          imgs: p.image_url ? [p.image_url] : [],
+        }));
+        setProducts([...initialProducts, ...dbProducts]);
+      }
+    });
   }, []);
 
   // Countdown timer
