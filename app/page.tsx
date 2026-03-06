@@ -353,24 +353,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* COUNTDOWN TIMER */}
-      <div className="deal-timer">
-        <div className="deal-timer-inner">
-          <span className="label">{t('\u26A1 Flash Sale \u2014 Ends In', '\u26A1 \u179B\u1780\u17CB Flash \u2014 \u1794\u1789\u17D2\u1785\u1794\u17CB\u1780\u17D2\u1793\u17BB\u1784')}</span>
-          <h3>{t("Today's Beauty Deals", '\u1780\u17B6\u179A\u1795\u17D2\u178F\u179B\u17CB\u1787\u17BC\u1793\u179F\u1798\u17D2\u179A\u179F\u17CB\u1790\u17D2\u1784\u17C3\u1793\u17C1\u17C7')}</h3>
-          <div style={{ fontSize: 13, color: 'rgba(201,169,110,.5)', marginBottom: 20 }}>{'\u1780\u17B6\u179A\u1795\u17D2\u178F\u179B\u17CB\u1787\u17BC\u1793\u179F\u1798\u17D2\u179A\u179F\u17CB\u1790\u17D2\u1784\u17C3\u1793\u17C1\u17C7'}</div>
-          <div className="timer-boxes">
-            <div className="timer-box"><div className="num">{timer.h}</div><div className="lbl">{t('Hours', '\u1798\u17C9\u17C4\u1784')}</div></div>
-            <div className="timer-sep">:</div>
-            <div className="timer-box"><div className="num">{timer.m}</div><div className="lbl">{t('Min', '\u1793\u17B6\u1791\u17B8')}</div></div>
-            <div className="timer-sep">:</div>
-            <div className="timer-box"><div className="num">{timer.s}</div><div className="lbl">{t('Sec', '\u179C\u17B7\u1793\u17B6\u1791\u17B8')}</div></div>
-          </div>
-          <button className="btn-gold" onClick={() => { setActiveFilter('sale'); document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' }); }}>
-            {t('Shop Flash Deals \u2192', '\u1791\u17B7\u1789\u1780\u17B6\u179A\u1795\u17D2\u178F\u179B\u17CB\u1787\u17BC\u1793 \u2192')}
-          </button>
-        </div>
-      </div>
+      {/* COUNTDOWN TIMER - hidden */}
 
       {/* PRODUCTS */}
       <section id="products-section" style={{ background: '#FFF6F7' }}>
