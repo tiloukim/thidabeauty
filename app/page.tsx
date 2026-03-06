@@ -427,18 +427,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SALE BANNER */}
-      <div style={{ position: 'relative', overflow: 'hidden', minHeight: 380, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="https://images.unsplash.com/photo-1470259078422-826894b933aa?w=1800&q=80&fit=crop" alt="beauty banner" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg,rgba(26,18,8,0.75) 0%,rgba(61,43,31,0.65) 100%)' }} />
-        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '64px 40px' }}>
-          <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 44, fontWeight: 300, color: 'white', marginBottom: 8 }}>{t('Glow Up This Season', '\u1797\u17D2\u179B\u17BA\u1785\u17B6\u17C6\u1784\u179A\u178A\u17BC\u179C\u1793\u17C1\u17C7')}</h2>
-          <p style={{ fontSize: 18, color: 'var(--gold)', marginBottom: 20 }}>{'\u1797\u17D2\u179B\u17BA\u1785\u17B6\u17C6\u1784\u179A\u178A\u17BC\u179C\u1793\u17C1\u17C7'}</p>
-          <p style={{ color: 'rgba(255,255,255,0.7)', maxWidth: 500, margin: '0 auto 28px', fontSize: 15, lineHeight: 1.8 }}>{t('Discover our curated sets & exclusive bundles. Up to 30% off selected items.', '\u179F\u17D2\u179C\u17C2\u1784\u179A\u1780\u17A2\u17C6\u178E\u17C4\u1799\u178A\u17C2\u179B\u1794\u17B6\u1793\u1787\u17D2\u179A\u17BE\u179F\u179A\u17BE\u179F\u17D4 \u1785\u17BB\u17C7\u178F\u1798\u17D2\u179B\u17C3\u178A\u179B\u17CB 30%')}</p>
-          <button className="btn-gold">{t('Shop The Sale', '\u1791\u17B7\u1789\u1780\u17B6\u179A\u1795\u17D2\u178F\u179B\u17CB\u1787\u17BC\u1793')}</button>
-        </div>
-      </div>
+      {/* SALE BANNER - hidden */}
 
       {/* EDITORIAL FEATURE */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 480 }}>
