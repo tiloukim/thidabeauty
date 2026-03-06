@@ -47,6 +47,15 @@ interface AdminUser {
   orders: Order[];
 }
 
+interface Visitor {
+  id: number;
+  ip: string;
+  country: string;
+  city: string;
+  path: string;
+  visited_at: string;
+}
+
 type Tab = "dashboard" | "products" | "orders" | "users";
 
 export default function AdminPanel() {
@@ -78,6 +87,7 @@ export default function AdminPanel() {
   const [editForm, setEditForm] = useState({ full_name: "", email: "", phone: "", is_admin: false });
   const [editSaving, setEditSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [visitors, setVisitors] = useState<Visitor[]>([]);
 
   // Stats
   const [stats, setStats] = useState({
@@ -204,6 +214,12 @@ export default function AdminPanel() {
     });
 
     setLoaded(true);
+
+    // Load visitors
+    fetch("/api/admin/visitors")
+      .then((res) => res.ok ? res.json() : [])
+      .then((data) => { if (Array.isArray(data)) setVisitors(data); })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -562,6 +578,78 @@ export default function AdminPanel() {
                     </span>
                     <span style={{ fontSize: 12, color: "rgba(201,169,110,.4)" }}>
                       {new Date(order.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Recent Visitors */}
+            <h3
+              style={{
+                fontFamily: "'Cormorant Garamond',serif",
+                fontSize: 22,
+                color: "var(--gold)",
+                marginBottom: 16,
+                marginTop: 40,
+              }}
+            >
+              Recent Visitors ({visitors.length})
+            </h3>
+            {visitors.length === 0 ? (
+              <p style={{ color: "rgba(201,169,110,.4)", fontSize: 13, marginBottom: 40 }}>
+                No visitors tracked yet.
+              </p>
+            ) : (
+              <div
+                style={{
+                  background: "rgba(255,255,255,.03)",
+                  border: "1px solid rgba(201,169,110,.12)",
+                  borderRadius: 4,
+                  overflow: "hidden",
+                  marginBottom: 40,
+                }}
+              >
+                {/* Table Header */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr 1fr 1fr",
+                    padding: "12px 20px",
+                    borderBottom: "1px solid rgba(201,169,110,.15)",
+                    fontSize: 10,
+                    letterSpacing: 1.5,
+                    textTransform: "uppercase",
+                    color: "rgba(201,169,110,.5)",
+                  }}
+                >
+                  <span>IP Address</span>
+                  <span>Country / City</span>
+                  <span>Page</span>
+                  <span>Time</span>
+                </div>
+                {visitors.map((v) => (
+                  <div
+                    key={v.id}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr 1fr 1fr",
+                      padding: "10px 20px",
+                      borderBottom: "1px solid rgba(201,169,110,.06)",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span style={{ fontSize: 13, color: "var(--gold-light)", fontFamily: "monospace" }}>
+                      {v.ip}
+                    </span>
+                    <span style={{ fontSize: 13, color: "var(--gold-light)" }}>
+                      {v.country}{v.city && v.city !== "unknown" ? ` / ${v.city}` : ""}
+                    </span>
+                    <span style={{ fontSize: 12, color: "rgba(201,169,110,.5)" }}>
+                      {v.path}
+                    </span>
+                    <span style={{ fontSize: 12, color: "rgba(201,169,110,.4)" }}>
+                      {new Date(v.visited_at).toLocaleString()}
                     </span>
                   </div>
                 ))}

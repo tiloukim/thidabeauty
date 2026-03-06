@@ -88,6 +88,15 @@ export default function HomePage() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Track visitor
+  useEffect(() => {
+    fetch('/api/track-visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: window.location.pathname }),
+    }).catch(() => {});
+  }, []);
+
   // Load products from DB and merge with hardcoded ones
   useEffect(() => {
     const supabase = createClient();
