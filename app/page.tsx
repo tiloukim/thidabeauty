@@ -632,15 +632,7 @@ export default function HomePage() {
       {/* FOOTER */}
       <footer>
         <div className="footer-grid">
-          <div className="footer-brand">
-            <div className="logo-main" style={{ fontFamily: "'Cormorant Garamond',serif" }}>ThidaBeauty</div>
-            <p>{t("Cambodia's premier beauty destination. Authentic luxury cosmetics, delivered across the Kingdom.", '\u1791\u17B7\u179F\u178A\u17C5\u179F\u1798\u17D2\u179A\u179F\u17CB\u1788\u17B6\u1793\u1798\u17BB\u1781\u1793\u17C5\u1780\u1798\u17D2\u1796\u17BB\u1787\u17B6')}</p>
-            <div className="trust-badges">
-              <span className="trust-badge">{'\u{1F512}'} Secure Checkout</span>
-              <span className="trust-badge">{'\u2713'} Authentic</span>
-              <span className="trust-badge">{'\u{1F1F0}\u{1F1ED}'} Made for Cambodia</span>
-            </div>
-          </div>
+          {/* footer-brand hidden */}
           <div className="footer-col">
             <h4>{t('Shop', '\u17A0\u17B6\u1784')}</h4>
             <ul>
