@@ -284,25 +284,11 @@ export default function AdminPanel() {
 
   return (
     <div style={{ background: "var(--deep)", minHeight: "100vh" }}>
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "40px" }}>
+      <div className="admin-wrapper">
         {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 32,
-          }}
-        >
+        <div className="admin-header">
           <div>
-            <h1
-              style={{
-                fontFamily: "'Cormorant Garamond',serif",
-                fontSize: 36,
-                color: "var(--gold)",
-                marginBottom: 4,
-              }}
-            >
+            <h1 className="admin-title">
               ✦ Admin Dashboard
             </h1>
             <p style={{ fontSize: 13, color: "rgba(201,169,110,.5)" }}>
@@ -327,14 +313,7 @@ export default function AdminPanel() {
         </div>
 
         {/* Tab Bar */}
-        <div
-          style={{
-            display: "flex",
-            gap: 0,
-            marginBottom: 32,
-            borderBottom: "1px solid rgba(201,169,110,.15)",
-          }}
-        >
+        <div className="admin-tabs">
           {tabs.map((tab) => (
             <button
               key={tab.key}
@@ -386,14 +365,7 @@ export default function AdminPanel() {
         {activeTab === "dashboard" && (
           <div>
             {/* Stats Cards */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                gap: 20,
-                marginBottom: 40,
-              }}
-            >
+            <div className="admin-stats">
               {statCards.map((card) => (
                 <div
                   key={card.label}
@@ -527,14 +499,7 @@ export default function AdminPanel() {
                 {orders.slice(0, 5).map((order) => (
                   <div
                     key={order.id}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "14px 20px",
-                      borderBottom: "1px solid rgba(201,169,110,.08)",
-                      gap: 12,
-                    }}
+                    className="admin-dash-order-row"
                   >
                     <span style={{ fontSize: 13, color: "var(--gold-light)", fontFamily: "monospace" }}>
                       #{order.id.slice(0, 8)}
@@ -875,10 +840,8 @@ export default function AdminPanel() {
               >
                 {/* Table Header */}
                 <div
+                  className="admin-orders-table-header"
                   style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
-                    padding: "12px 20px",
                     borderBottom: "1px solid rgba(201,169,110,.15)",
                     fontSize: 10,
                     letterSpacing: 1.5,
@@ -895,13 +858,8 @@ export default function AdminPanel() {
                 {orders.map((order) => (
                   <div
                     key={order.id}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
-                      padding: "14px 20px",
-                      borderBottom: "1px solid rgba(201,169,110,.06)",
-                      alignItems: "center",
-                    }}
+                    className="admin-orders-table-row"
+                    style={{ borderBottom: "1px solid rgba(201,169,110,.06)" }}
                   >
                     <span style={{ fontSize: 13, color: "var(--gold-light)", fontFamily: "monospace" }}>
                       #{order.id.slice(0, 8)}
@@ -975,14 +933,7 @@ export default function AdminPanel() {
                       onClick={() =>
                         setExpandedUser(expandedUser === user.id ? null : user.id)
                       }
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 2fr 1fr 1fr 1fr",
-                        padding: "16px 20px",
-                        alignItems: "center",
-                        cursor: "pointer",
-                        transition: "background .15s",
-                      }}
+                      className="admin-user-row"
                     >
                       {/* Name */}
                       <div>
@@ -1152,14 +1103,7 @@ export default function AdminPanel() {
                         ) : (
                           /* ── VIEW MODE ── */
                           <div>
-                            <div
-                              style={{
-                                display: "grid",
-                                gridTemplateColumns: "1fr 1fr 1fr",
-                                gap: 16,
-                                marginBottom: 20,
-                              }}
-                            >
+                            <div className="admin-user-details">
                               <div>
                                 <div style={labelStyle}>Name</div>
                                 <div style={valueStyle}>
@@ -1266,15 +1210,7 @@ export default function AdminPanel() {
                               {user.orders.map((order) => (
                                 <div
                                   key={order.id}
-                                  style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    padding: "10px 16px",
-                                    borderBottom:
-                                      "1px solid rgba(201,169,110,.06)",
-                                    gap: 12,
-                                  }}
+                                  className="admin-order-row"
                                 >
                                   <span
                                     style={{

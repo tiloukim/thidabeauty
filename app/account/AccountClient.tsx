@@ -90,7 +90,7 @@ export default function AccountClient({
         {/* Admin Section */}
         {isAdmin && (
           <div className="account-section" style={{ background: "var(--deep)", border: "1px solid rgba(201,169,110,.25)" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div className="account-admin-section">
               <div>
                 <h2 style={{ color: "var(--gold)", marginBottom: 4 }}>✦ Admin</h2>
                 <p style={{ fontSize: 12, color: "rgba(201,169,110,.5)", margin: 0 }}>
