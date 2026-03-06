@@ -381,7 +381,7 @@ section{padding:80px 40px;}
 
 /* ══ FOOTER ══ */
 footer{background:var(--deep);padding:60px 40px 32px;}
-.footer-grid{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;}
+.footer-grid{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:48px;margin-bottom:48px;text-align:center;}
 @media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;}}
 .footer-brand .logo-main{color:var(--white);font-size:24px;}
 .footer-brand p{font-size:13px;color:rgba(201,169,110,.5);line-height:1.8;margin-top:16px;max-width:260px;}
@@ -390,7 +390,7 @@ footer{background:var(--deep);padding:60px 40px 32px;}
 .footer-col ul li{margin-bottom:10px;}
 .footer-col ul li a{color:rgba(201,169,110,.55);text-decoration:none;font-size:13px;transition:color .2s;}
 .footer-col ul li a:hover{color:var(--gold);}
-.footer-bottom{max-width:1400px;margin:0 auto;padding-top:24px;border-top:1px solid rgba(201,169,110,.1);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.footer-bottom{max-width:1400px;margin:0 auto;padding-top:24px;border-top:1px solid rgba(201,169,110,.1);display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px;flex-direction:column;}
 .footer-bottom p{color:rgba(201,169,110,.3);font-size:12px;}
 .socials{display:flex;gap:12px;}
 .socials a{width:36px;height:36px;border:1px solid rgba(201,169,110,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:rgba(201,169,110,.5);text-decoration:none;font-size:14px;transition:all .2s;}
