@@ -606,12 +606,6 @@ export default function HomePage() {
         </div>
         <div className="footer-bottom">
           <p>&copy; 2025 ThidaBeauty &middot; {'\u1790\u17B8\u178F\u17B6\u1794\u17D2\u1799\u17BC\u1791\u17B8'} &middot; Phnom Penh, Cambodia</p>
-          <div className="socials">
-            <a href="#" title="Facebook">{'\u{1F4D8}'}</a>
-            <a href="#" title="Instagram">{'\u{1F4F7}'}</a>
-            <a href="#" title="TikTok">{'\u{1F3B5}'}</a>
-            <a href="#" title="Telegram">{'\u2708\uFE0F'}</a>
-          </div>
         </div>
       </footer>
 
