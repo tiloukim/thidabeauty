@@ -210,10 +210,7 @@ export default function HomePage() {
           <a href="#">{t('Track Order', '\u178F\u17B6\u1798\u178A\u17B6\u1793\u1780\u17B6\u179A\u1794\u1789\u17D2\u1787\u17B6\u1791\u17B7\u1789')}</a>
           <a href="#">{t('Help', '\u1787\u17C6\u1793\u17BD\u1799')}</a>
         </div>
-        <div className="lang-bar-right">
-          <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>EN</button>
-          <button className={`lang-btn ${lang === 'kh' ? 'active' : ''}`} onClick={() => setLang('kh')}>{'\u1781\u17D2\u1798\u17C2\u179A'}</button>
-        </div>
+        <div className="lang-bar-right"></div>
       </div>
 
       {/* HEADER */}
@@ -232,6 +229,10 @@ export default function HomePage() {
             <a href="#" style={{ color: 'var(--rose)' }}>{t('Sale', '\u179B\u1780\u17CB')}</a>
           </nav>
           <div className="header-actions">
+            <div className="header-lang-toggle">
+              <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>EN</button>
+              <button className={`lang-btn ${lang === 'kh' ? 'active' : ''}`} onClick={() => setLang('kh')}>{'\u1781\u17D2\u1798\u17C2\u179A'}</button>
+            </div>
             {user ? (
               <div className="header-auth-links">
                 {isAdmin && <Link href="/admin">Admin</Link>}
