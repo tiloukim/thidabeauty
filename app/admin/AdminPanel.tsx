@@ -32,6 +32,19 @@ interface UserProfile {
   is_admin: boolean;
   created_at: string;
   email?: string;
+  full_name?: string | null;
+  phone?: string | null;
+  orders?: Order[];
+}
+
+interface AdminUser {
+  id: string;
+  email: string;
+  full_name: string | null;
+  phone: string | null;
+  is_admin: boolean;
+  created_at: string;
+  orders: Order[];
 }
 
 type Tab = "dashboard" | "products" | "orders" | "users";
@@ -56,6 +69,9 @@ export default function AdminPanel() {
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
+  const [usersLoaded, setUsersLoaded] = useState(false);
+  const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   // Stats
@@ -102,6 +118,20 @@ export default function AdminPanel() {
     if (data) setUsers(data);
   }, []);
 
+  const loadAdminUsers = useCallback(async () => {
+    if (usersLoaded) return;
+    try {
+      const res = await fetch("/api/admin/users");
+      if (res.ok) {
+        const data = await res.json();
+        setAdminUsers(data);
+        setUsersLoaded(true);
+      }
+    } catch {
+      // silently fail
+    }
+  }, [usersLoaded]);
+
   const loadAll = useCallback(async () => {
     const supabase = createClient();
 
@@ -132,6 +162,10 @@ export default function AdminPanel() {
   useEffect(() => {
     if (!loaded) loadAll();
   }, [loaded, loadAll]);
+
+  useEffect(() => {
+    if (activeTab === "users") loadAdminUsers();
+  }, [activeTab, loadAdminUsers]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,6 +223,19 @@ export default function AdminPanel() {
     { label: "Total Orders", value: stats.totalOrders, icon: "📦", color: "var(--green)" },
     { label: "Revenue", value: `$${stats.revenue.toFixed(2)}`, icon: "💰", color: "var(--rose)" },
   ];
+
+  const labelStyle: React.CSSProperties = {
+    fontSize: 10,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+    color: "rgba(201,169,110,.45)",
+    marginBottom: 4,
+  };
+
+  const valueStyle: React.CSSProperties = {
+    fontSize: 13,
+    color: "var(--gold-light)",
+  };
 
   return (
     <div style={{ background: "var(--deep)", minHeight: "100vh" }}>
@@ -856,70 +903,266 @@ export default function AdminPanel() {
                 marginBottom: 24,
               }}
             >
-              Registered Users ({users.length})
+              Registered Users ({adminUsers.length})
             </h2>
-            {users.length === 0 ? (
+            {!usersLoaded ? (
+              <p style={{ color: "rgba(201,169,110,.4)", fontSize: 14 }}>
+                Loading users...
+              </p>
+            ) : adminUsers.length === 0 ? (
               <p style={{ color: "rgba(201,169,110,.4)", fontSize: 14 }}>
                 No registered users yet.
               </p>
             ) : (
-              <div
-                style={{
-                  background: "rgba(255,255,255,.03)",
-                  border: "1px solid rgba(201,169,110,.12)",
-                  borderRadius: 4,
-                  overflow: "hidden",
-                }}
-              >
-                {/* Table Header */}
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "2fr 1fr 1fr",
-                    padding: "12px 20px",
-                    borderBottom: "1px solid rgba(201,169,110,.15)",
-                    fontSize: 10,
-                    letterSpacing: 1.5,
-                    textTransform: "uppercase",
-                    color: "rgba(201,169,110,.5)",
-                  }}
-                >
-                  <span>User ID</span>
-                  <span>Joined</span>
-                  <span>Role</span>
-                </div>
-                {users.map((user) => (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {adminUsers.map((user) => (
                   <div
                     key={user.id}
                     style={{
-                      display: "grid",
-                      gridTemplateColumns: "2fr 1fr 1fr",
-                      padding: "14px 20px",
-                      borderBottom: "1px solid rgba(201,169,110,.06)",
-                      alignItems: "center",
+                      background: "rgba(255,255,255,.04)",
+                      border: "1px solid rgba(201,169,110,.15)",
+                      borderRadius: 6,
+                      overflow: "hidden",
                     }}
                   >
-                    <span style={{ fontSize: 13, color: "var(--gold-light)", fontFamily: "monospace" }}>
-                      {user.id.slice(0, 12)}...
-                    </span>
-                    <span style={{ fontSize: 12, color: "rgba(201,169,110,.4)" }}>
-                      {new Date(user.created_at).toLocaleDateString()}
-                    </span>
-                    <span>
-                      <span
+                    {/* User Row - clickable */}
+                    <div
+                      onClick={() =>
+                        setExpandedUser(expandedUser === user.id ? null : user.id)
+                      }
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 2fr 1fr 1fr 1fr",
+                        padding: "16px 20px",
+                        alignItems: "center",
+                        cursor: "pointer",
+                        transition: "background .15s",
+                      }}
+                    >
+                      {/* Name */}
+                      <div>
+                        <div
+                          style={{
+                            fontSize: 15,
+                            color: "var(--gold-light)",
+                            fontFamily: "'Cormorant Garamond',serif",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {user.full_name || "—"}
+                        </div>
+                      </div>
+                      {/* Email */}
+                      <div style={{ fontSize: 13, color: "var(--gold-light)" }}>
+                        {user.email}
+                      </div>
+                      {/* Phone */}
+                      <div style={{ fontSize: 12, color: "rgba(201,169,110,.5)" }}>
+                        {user.phone || "—"}
+                      </div>
+                      {/* Role */}
+                      <div>
+                        <span
+                          style={{
+                            fontSize: 10,
+                            letterSpacing: 1,
+                            textTransform: "uppercase",
+                            padding: "3px 10px",
+                            borderRadius: 2,
+                            background: user.is_admin
+                              ? "rgba(201,169,110,.15)"
+                              : "rgba(255,255,255,.06)",
+                            color: user.is_admin
+                              ? "var(--gold)"
+                              : "rgba(201,169,110,.4)",
+                          }}
+                        >
+                          {user.is_admin ? "Admin" : "Customer"}
+                        </span>
+                      </div>
+                      {/* Expand arrow */}
+                      <div
                         style={{
-                          fontSize: 10,
-                          letterSpacing: 1,
-                          textTransform: "uppercase",
-                          padding: "3px 10px",
-                          borderRadius: 2,
-                          background: user.is_admin ? "rgba(201,169,110,.15)" : "rgba(255,255,255,.06)",
-                          color: user.is_admin ? "var(--gold)" : "rgba(201,169,110,.4)",
+                          textAlign: "right",
+                          fontSize: 14,
+                          color: "rgba(201,169,110,.4)",
+                          transition: "transform .2s",
+                          transform:
+                            expandedUser === user.id
+                              ? "rotate(180deg)"
+                              : "rotate(0deg)",
                         }}
                       >
-                        {user.is_admin ? "Admin" : "Customer"}
-                      </span>
-                    </span>
+                        ▾
+                      </div>
+                    </div>
+
+                    {/* Expanded Details */}
+                    {expandedUser === user.id && (
+                      <div
+                        style={{
+                          borderTop: "1px solid rgba(201,169,110,.1)",
+                          padding: "20px",
+                          background: "rgba(0,0,0,.15)",
+                        }}
+                      >
+                        {/* Info Grid */}
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "1fr 1fr 1fr",
+                            gap: 16,
+                            marginBottom: 20,
+                          }}
+                        >
+                          <div>
+                            <div style={labelStyle}>Name</div>
+                            <div style={valueStyle}>
+                              {user.full_name || "Not set"}
+                            </div>
+                          </div>
+                          <div>
+                            <div style={labelStyle}>Email</div>
+                            <div style={valueStyle}>{user.email}</div>
+                          </div>
+                          <div>
+                            <div style={labelStyle}>Phone</div>
+                            <div style={valueStyle}>
+                              {user.phone || "Not set"}
+                            </div>
+                          </div>
+                          <div>
+                            <div style={labelStyle}>User ID</div>
+                            <div
+                              style={{
+                                ...valueStyle,
+                                fontFamily: "monospace",
+                                fontSize: 11,
+                              }}
+                            >
+                              {user.id}
+                            </div>
+                          </div>
+                          <div>
+                            <div style={labelStyle}>Joined</div>
+                            <div style={valueStyle}>
+                              {new Date(user.created_at).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                }
+                              )}
+                            </div>
+                          </div>
+                          <div>
+                            <div style={labelStyle}>Total Orders</div>
+                            <div style={valueStyle}>
+                              {user.orders.length}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Order History */}
+                        <div>
+                          <div
+                            style={{
+                              fontSize: 10,
+                              letterSpacing: 2,
+                              textTransform: "uppercase",
+                              color: "var(--gold)",
+                              marginBottom: 10,
+                              fontWeight: 600,
+                            }}
+                          >
+                            Order History
+                          </div>
+                          {user.orders.length === 0 ? (
+                            <p
+                              style={{
+                                color: "rgba(201,169,110,.3)",
+                                fontSize: 13,
+                              }}
+                            >
+                              No orders yet.
+                            </p>
+                          ) : (
+                            <div
+                              style={{
+                                background: "rgba(255,255,255,.03)",
+                                border: "1px solid rgba(201,169,110,.1)",
+                                borderRadius: 4,
+                                overflow: "hidden",
+                              }}
+                            >
+                              {user.orders.map((order) => (
+                                <div
+                                  key={order.id}
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    padding: "10px 16px",
+                                    borderBottom:
+                                      "1px solid rgba(201,169,110,.06)",
+                                    gap: 12,
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      fontSize: 12,
+                                      color: "var(--gold-light)",
+                                      fontFamily: "monospace",
+                                    }}
+                                  >
+                                    #{order.id.slice(0, 8)}
+                                  </span>
+                                  <span
+                                    style={{
+                                      fontSize: 10,
+                                      letterSpacing: 1,
+                                      textTransform: "uppercase",
+                                      padding: "2px 8px",
+                                      borderRadius: 2,
+                                      background:
+                                        order.status === "completed"
+                                          ? "rgba(76,175,125,.15)"
+                                          : "rgba(201,169,110,.15)",
+                                      color:
+                                        order.status === "completed"
+                                          ? "var(--green)"
+                                          : "var(--gold)",
+                                    }}
+                                  >
+                                    {order.status}
+                                  </span>
+                                  <span
+                                    style={{
+                                      fontSize: 13,
+                                      color: "var(--gold)",
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    ${order.total?.toFixed(2)}
+                                  </span>
+                                  <span
+                                    style={{
+                                      fontSize: 11,
+                                      color: "rgba(201,169,110,.4)",
+                                    }}
+                                  >
+                                    {new Date(
+                                      order.created_at
+                                    ).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
