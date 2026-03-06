@@ -597,19 +597,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* FRAGRANCE BANNER */}
-      <div style={{ position: 'relative', overflow: 'hidden', height: 320 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="https://images.unsplash.com/photo-1541643600914-78b084683702?w=1800&q=80&fit=crop" alt="fragrance" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 35%' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg,rgba(26,18,8,0.8) 0%,rgba(26,18,8,0.3) 60%,transparent 100%)', display: 'flex', alignItems: 'center', padding: '0 80px' }}>
-          <div>
-            <span style={{ fontSize: 10, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--gold)', marginBottom: 12, display: 'block' }}>Exclusive Fragrance</span>
-            <h3 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 48, color: 'white', fontWeight: 300, marginBottom: 8 }}>Scents That <em style={{ color: 'var(--gold)' }}>Linger</em></h3>
-            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, marginBottom: 24, maxWidth: 360 }}>Discover our collection of luxury perfumes and body mists, curated for the modern Cambodian woman.</p>
-            <button className="btn-outline" onClick={() => { setActiveCategory('fragrance'); document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' }); }}>Explore Fragrance {'\u2192'}</button>
-          </div>
-        </div>
-      </div>
+      {/* FRAGRANCE BANNER - hidden */}
 
       {/* EMAIL SIGNUP */}
       <div className="email-section">
