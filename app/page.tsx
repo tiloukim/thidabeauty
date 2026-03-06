@@ -244,12 +244,12 @@ export default function HomePage() {
             <span className="logo-khmer">{'\u1790\u17B8\u178F\u17B6\u1794\u17D2\u1799\u17BC\u1791\u17B8'}</span>
           </Link>
           <nav>
-            <a href="#" className="has-badge">{t('New Arrivals', '\u1798\u1780\u1790\u17D2\u1798\u17B8')}</a>
-            <a href="#">{t('Skincare', '\u1790\u17C2\u1791\u17B6\u17C6\u179F\u17D2\u1794\u17C2\u1780')}</a>
-            <a href="#">{t('Makeup', '\u1782\u17D2\u179A\u17BF\u1784\u178F\u17BB\u1794\u178F\u17C2\u1784')}</a>
-            <a href="#">{t('Fragrance', '\u17A2\u1794\u17CB')}</a>
-            <a href="#">{t('Brands', '\u1798\u17C9\u17B6\u1780')}</a>
-            <a href="#" style={{ color: 'var(--rose)' }}>{t('Sale', '\u179B\u1780\u17CB')}</a>
+            <a href="#products-section" className="has-badge" onClick={(e) => { e.preventDefault(); setActiveCategory('all'); setActiveFilter('new'); document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' }); }}>{t('New Arrivals', '\u1798\u1780\u1790\u17D2\u1798\u17B8')}</a>
+            <a href="#products-section" onClick={(e) => { e.preventDefault(); setActiveCategory('skincare'); setActiveFilter('all'); document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' }); }}>{t('Skincare', '\u1790\u17C2\u1791\u17B6\u17C6\u179F\u17D2\u1794\u17C2\u1780')}</a>
+            <a href="#products-section" onClick={(e) => { e.preventDefault(); setActiveCategory('makeup'); setActiveFilter('all'); document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' }); }}>{t('Makeup', '\u1782\u17D2\u179A\u17BF\u1784\u178F\u17BB\u1794\u178F\u17C2\u1784')}</a>
+            <a href="#products-section" onClick={(e) => { e.preventDefault(); setActiveCategory('fragrance'); setActiveFilter('all'); document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' }); }}>{t('Fragrance', '\u17A2\u1794\u17CB')}</a>
+            <a href="#products-section" onClick={(e) => { e.preventDefault(); setActiveCategory('all'); setActiveFilter('all'); document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' }); }}>{t('Brands', '\u1798\u17C9\u17B6\u1780')}</a>
+            <a href="#products-section" style={{ color: 'var(--rose)' }} onClick={(e) => { e.preventDefault(); setActiveCategory('all'); setActiveFilter('sale'); document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' }); }}>{t('Sale', '\u179B\u1780\u17CB')}</a>
           </nav>
           <div className="header-actions">
             <div className="header-lang-toggle">
