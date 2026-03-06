@@ -758,18 +758,11 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* WHATSAPP FLOAT */}
-      <div className="whatsapp-float">
-        <div className="wa-tooltip">{t('Chat with us on WhatsApp', '\u1787\u1787\u17C2\u1780\u1787\u17B6\u1798\u17BD\u1799\u1799\u17BE\u1784\u1793\u17C5 WhatsApp')}</div>
-        <a className="wa-btn" href="https://wa.me/85512345678" target="_blank" title="WhatsApp">{'\u{1F4AC}'}<div className="wa-notification">1</div></a>
-      </div>
 
-      {/* SOCIAL FLOATS */}
-      <div className="social-floats">
-        <a className="sf-btn sf-fb" href="#" title="Facebook Messenger">{'\u{1F4D8}'}</a>
-        <a className="sf-btn sf-tg" href="#" title="Telegram">{'\u2708\uFE0F'}</a>
-        <a className="sf-btn sf-tt" href="#" title="TikTok">{'\u{1F3B5}'}</a>
-      </div>
+      {/* ADD PRODUCT FLOAT (admin only) */}
+      {isAdmin && (
+        <Link href="/admin" className="add-product-float" title="Add Product">+</Link>
+      )}
 
       {/* SCROLL TO TOP */}
       <button className={`scroll-top ${showScrollTop ? 'show' : ''}`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>{'\u2191'}</button>
