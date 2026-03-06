@@ -249,8 +249,8 @@ export default function HomePage() {
       <header>
         <div className="header-inner">
           <Link className="logo" href="/" style={{ display: 'flex', alignItems: 'center' }}>
-            <span className="logo-main">ThidaBeauty</span>
-            <span className="logo-khmer">{'\u1790\u17B8\u178F\u17B6\u1794\u17D2\u1799\u17BC\u1791\u17B8'}</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="ThidaBeauty" style={{ height: 48, width: 'auto' }} />
           </Link>
           <nav>
             <a href="#products-section" className="has-badge" onClick={(e) => { e.preventDefault(); setActiveCategory('all'); setActiveFilter('new'); document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' }); }}>{t('New Arrivals', '\u1798\u1780\u1790\u17D2\u1798\u17B8')}</a>
@@ -335,11 +335,11 @@ export default function HomePage() {
       <section id="hero-section" style={{ padding: 0, position: 'relative', overflow: 'hidden', background: '#fff0f2', width: '100%' }}>
         <div style={{ position: 'relative', width: '100%', transition: 'opacity 0.8s ease', opacity: currentSlide === 0 ? 1 : 0, lineHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1800&q=80&fit=crop" alt="Beauty Hero 1" style={{ width: '100%', height: 'auto', maxHeight: '70vh', objectFit: 'cover' }} />
+          <img src="/cover1.jpg" alt="Beauty Hero 1" style={{ width: '100%', height: 'auto', maxHeight: '70vh', objectFit: 'cover' }} />
         </div>
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transition: 'opacity 0.8s ease', opacity: currentSlide === 1 ? 1 : 0, lineHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1800&q=80&fit=crop" alt="Beauty Hero 2" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src="/cover2.jpg" alt="Beauty Hero 2" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
         <div style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 8, zIndex: 20 }}>
           {[0, 1].map(i => (
