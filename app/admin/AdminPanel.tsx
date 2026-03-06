@@ -62,6 +62,8 @@ export default function AdminPanel() {
   const [badge, setBadge] = useState("");
   const [stock, setStock] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -212,6 +214,17 @@ export default function AdminPanel() {
     if (activeTab === "users") loadAdminUsers();
   }, [activeTab, loadAdminUsers]);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImageFile(file);
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImagePreview(url);
+    } else {
+      setImagePreview(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nameEn || !price) {
@@ -219,6 +232,31 @@ export default function AdminPanel() {
       return;
     }
     setLoading(true);
+
+    // Upload image first if a file was selected
+    let finalImageUrl = imageUrl || null;
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append("file", imageFile);
+      try {
+        const res = await fetch("/api/upload-image", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setMessage(`Error: ${data.error}`);
+          setLoading(false);
+          return;
+        }
+        finalImageUrl = data.url;
+      } catch {
+        setMessage("Error: Image upload failed");
+        setLoading(false);
+        return;
+      }
+    }
+
     const supabase = createClient();
     const { error } = await supabase.from("products").insert({
       name_en: nameEn,
@@ -230,7 +268,7 @@ export default function AdminPanel() {
       badge: badge || null,
       emoji: catEmojis[category] || "✦",
       stock: parseInt(stock) || 0,
-      image_url: imageUrl || null,
+      image_url: finalImageUrl,
     });
     if (error) {
       setMessage(`Error: ${error.message}`);
@@ -244,6 +282,8 @@ export default function AdminPanel() {
       setBadge("");
       setStock("");
       setImageUrl("");
+      setImageFile(null);
+      setImagePreview(null);
       loadProducts();
     }
     setLoading(false);
@@ -638,13 +678,72 @@ export default function AdminPanel() {
                 </div>
                 <div className="form-grid">
                   <div className="form-field">
-                    <label>Image URL</label>
-                    <input
-                      type="text"
-                      placeholder="https://..."
-                      value={imageUrl}
-                      onChange={(e) => setImageUrl(e.target.value)}
-                    />
+                    <label>Product Image</label>
+                    <label
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        padding: imagePreview ? 8 : "28px 16px",
+                        border: "2px dashed rgba(201,169,110,.3)",
+                        borderRadius: 6,
+                        cursor: "pointer",
+                        background: "rgba(255,255,255,.03)",
+                        transition: "border-color .2s",
+                      }}
+                    >
+                      {imagePreview ? (
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          style={{
+                            maxWidth: "100%",
+                            maxHeight: 180,
+                            borderRadius: 4,
+                            objectFit: "contain",
+                          }}
+                        />
+                      ) : (
+                        <>
+                          <span style={{ fontSize: 28, opacity: 0.5 }}>📷</span>
+                          <span style={{ fontSize: 12, color: "rgba(201,169,110,.5)", textTransform: "none", letterSpacing: 0 }}>
+                            Tap to upload or take a photo
+                          </span>
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        style={{ display: "none" }}
+                      />
+                    </label>
+                    {imagePreview && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImageFile(null);
+                          setImagePreview(null);
+                        }}
+                        style={{
+                          marginTop: 8,
+                          background: "none",
+                          border: "1px solid rgba(212,135,122,.4)",
+                          color: "var(--rose)",
+                          padding: "4px 12px",
+                          fontSize: 10,
+                          letterSpacing: 1,
+                          textTransform: "uppercase",
+                          cursor: "pointer",
+                          fontFamily: "'Jost',sans-serif",
+                          borderRadius: 2,
+                        }}
+                      >
+                        Remove image
+                      </button>
+                    )}
                   </div>
                 </div>
                 <button
