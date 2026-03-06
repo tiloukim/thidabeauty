@@ -292,10 +292,9 @@ export default function HomePage() {
             { avatar: '\u{1F381}', text: <><strong>Kosal</strong> used referral code &mdash; saved $8</> },
             { avatar: '\u{1F33F}', text: <><strong>Lida</strong> purchased <span className="prod">Argan Hair Mask</span></> },
             { avatar: '\u{1F486}', text: <><strong>Sophea</strong> earned <span className="prod">Gold Status</span> today</> },
-          ].flatMap((item, i) => [
-            <div key={`t1-${i}`} className="ticker-item"><div className="avatar">{item.avatar}</div><span>{item.text}</span></div>,
-            <div key={`t2-${i}`} className="ticker-item"><div className="avatar">{item.avatar}</div><span>{item.text}</span></div>,
-          ])}
+          ].map((item, i) => (
+            <div key={`t-${i}`} className="ticker-item"><div className="avatar">{item.avatar}</div><span>{item.text}</span></div>
+          ))}
         </div>
       </div>
 
