@@ -1,0 +1,10 @@
+node_modules/
+.next/
+.env.local
+.env*.local
+.vercel
+.DS_Store
+theme/
+worker/
+*.html
+*.html.save
