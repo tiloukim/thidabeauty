@@ -566,36 +566,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* REFERRAL */}
-      <div className="referral-section">
-        <div className="referral-inner">
-          <span className="tag">{t('\u{1F381} Refer & Earn', '\u{1F381} \u178E\u17C2\u1793\u17B6\u17C6 & \u179A\u1780')}</span>
-          <h2>{t('Share the Glow', '\u1785\u17C2\u1780\u179A\u17C6\u179B\u17C2\u1780\u1794\u17D2\u179A\u17A0\u17C4\u1784')}</h2>
-          <p className="kh">{'\u1785\u17C2\u1780\u179A\u17C6\u179B\u17C2\u1780\u1794\u17D2\u179A\u17A0\u17C4\u1784'}</p>
-          <p>{t('Invite friends to ThidaBeauty. You get $8 credit, they get 10% off their first order.', '\u178E\u17C2\u1793\u17B6\u17C6\u1798\u17B7\u178F\u17D2\u178F\u1797\u17D0\u1780\u17D2\u178F\u17B7\u17D4 \u17A2\u17D2\u1793\u1780\u1791\u1791\u17BD\u179B\u1794\u17B6\u1793 $8 \u17A0\u17BE\u1799\u1796\u17BD\u1780\u1782\u17C1\u1791\u1791\u17BD\u179B\u1794\u17B6\u1793 10% \u1785\u17C6\u178E\u17C5\u1780\u17B6\u179A\u1794\u1789\u17D2\u1787\u17B6\u1791\u17B7\u1789\u178A\u17C6\u1794\u17BC\u1784')}</p>
-          <div className="referral-steps">
-            {[
-              t('Copy your unique referral code', '\u1785\u1798\u17D2\u179B\u1784\u179B\u17C1\u1781\u1780\u17BC\u178A\u178E\u17C2\u1793\u17B6\u17C6\u179A\u1794\u179F\u17CB\u17A2\u17D2\u1793\u1780'),
-              t('Share on TikTok, Facebook or Telegram', '\u1785\u17C2\u1780\u179A\u17C6\u179B\u17C2\u1780\u1787\u17B6\u1798\u17BD\u1799\u1798\u17B7\u178F\u17D2\u178F TikTok, Facebook'),
-              t('Earn $8 when they shop', '\u179A\u1780 $8 \u1793\u17C5\u1796\u17C1\u179B\u1796\u17BD\u1780\u1782\u17C1\u1791\u17B7\u1789\u178A\u17C6\u1794\u17BC\u1784'),
-            ].map((text, i) => (
-              <div key={i} className="ref-step"><div className="step-num">{i + 1}</div><p>{text}</p></div>
-            ))}
-          </div>
-          <div className="ref-code-box">
-            <div className="ref-code">THIDA-KH24</div>
-            <button className="ref-copy-btn" onClick={() => { navigator.clipboard?.writeText('THIDA-KH24'); showToast('\u2713 Code THIDA-KH24 copied!', '#C9A96E'); }}>
-              {t('Copy', '\u1785\u1798\u17D2\u179B\u1784')}
-            </button>
-          </div>
-          <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>{t("You've referred 3 friends and earned $24 \u2726", '\u17A2\u17D2\u1793\u1780\u1794\u17B6\u1793\u178E\u17C2\u1793\u17B6\u17C6 3 \u1798\u17B7\u178F\u17D2\u178F \u17A0\u17BE\u1799\u179A\u1780 $24 \u2726')}</p>
-          <div className="ref-share-btns">
-            {['\u{1F4D8} Facebook', '\u2708\uFE0F Telegram', '\u{1F3B5} TikTok', '\u{1F4AC} WhatsApp'].map(label => (
-              <button key={label} className="ref-share-btn" onClick={() => showToast(`\u2713 Sharing on ${label.split(' ')[1]}!`, '#C9A96E')}>{label}</button>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* REFERRAL - hidden */}
 
       {/* FRAGRANCE BANNER - hidden */}
 
