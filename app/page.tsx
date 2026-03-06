@@ -332,14 +332,14 @@ export default function HomePage() {
       </div>
 
       {/* HERO CAROUSEL */}
-      <section id="hero-section" style={{ padding: 0, position: 'relative', overflow: 'hidden', background: '#fff0f2', width: '100%' }}>
-        <div style={{ position: 'relative', width: '100%', transition: 'opacity 0.8s ease', opacity: currentSlide === 0 ? 1 : 0, lineHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <section id="hero-section" style={{ padding: 0, position: 'relative', overflow: 'hidden', background: '#f5e6e8', width: '100%', height: '60vh', minHeight: 300, maxHeight: 600 }}>
+        <div style={{ position: 'absolute', inset: 0, transition: 'opacity 0.8s ease', opacity: currentSlide === 0 ? 1 : 0 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/cover1.jpg" alt="Beauty Hero 1" style={{ width: '100%', height: 'auto', maxHeight: '70vh', objectFit: 'cover' }} />
+          <img src="/cover1.png" alt="Beauty Hero 1" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
         </div>
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transition: 'opacity 0.8s ease', opacity: currentSlide === 1 ? 1 : 0, lineHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', inset: 0, transition: 'opacity 0.8s ease', opacity: currentSlide === 1 ? 1 : 0 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/cover2.jpg" alt="Beauty Hero 2" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src="/cover2.jpg" alt="Beauty Hero 2" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
         </div>
         <div style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 8, zIndex: 20 }}>
           {[0, 1].map(i => (
