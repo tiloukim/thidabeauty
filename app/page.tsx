@@ -67,6 +67,10 @@ export default function HomePage() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  const [checkingOut, setCheckingOut] = useState(false);
+  const paywayFormRef = useRef<HTMLFormElement>(null);
+  const [paywayData, setPaywayData] = useState<Record<string, string> | null>(null);
+
   const timerEnd = useRef(new Date(Date.now() + 6 * 3600000 + 24 * 60000));
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -203,6 +207,40 @@ export default function HomePage() {
       return updated.filter(c => c.qty > 0);
     });
   }, []);
+
+  const handleCheckout = useCallback(async () => {
+    if (cart.length === 0) return;
+    setCheckingOut(true);
+    try {
+      const items = cart.map(c => ({
+        name: c.nameEn,
+        quantity: c.qty,
+        price: c.sale || c.price,
+      }));
+      const total = cart.reduce((s, c) => s + ((c.sale || c.price) * c.qty), 0);
+      const res = await fetch('/api/checkout-payway', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: total,
+          items,
+          email: user?.email || '',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.error || 'Checkout failed', '#D4877A');
+        setCheckingOut(false);
+        return;
+      }
+      setPaywayData(data);
+      // Auto-submit form to PayWay after state update
+      setTimeout(() => paywayFormRef.current?.submit(), 100);
+    } catch {
+      showToast('Checkout failed. Please try again.', '#D4877A');
+      setCheckingOut(false);
+    }
+  }, [cart, user, showToast]);
 
   const cartTotal = cart.reduce((s, c) => s + ((c.sale || c.price) * c.qty), 0);
   const cartCount = cart.reduce((s, c) => s + c.qty, 0);
@@ -633,7 +671,9 @@ export default function HomePage() {
             <span>{t('Total', '\u179F\u179A\u17BB\u1794')}</span>
             <strong>${cartTotal.toFixed(2)}</strong>
           </div>
-          <button className="checkout-btn">{t('Checkout \u2192', '\u1791\u17BC\u1791\u17B6\u178F\u17CB \u2192')}</button>
+          <button className="checkout-btn" onClick={handleCheckout} disabled={checkingOut || cart.length === 0}>
+            {checkingOut ? t('Processing...', '\u1780\u17C6\u1796\u17BB\u1784\u178A\u17C6\u178E\u17BE\u179A\u1780\u17B6\u179A...') : t('Checkout \u2192', '\u1791\u17BC\u1791\u17B6\u178F\u17CB \u2192')}
+          </button>
         </div>
       </div>
 
@@ -650,6 +690,21 @@ export default function HomePage() {
       <div className={`success-toast ${toastVisible ? 'show' : ''}`} style={{ borderColor: toastColor }}>
         <span>{'\u2713'}</span><span>{toastMsg}</span>
       </div>
+
+      {/* Hidden PayWay checkout form */}
+      {paywayData && (
+        <form ref={paywayFormRef} method="POST" action={paywayData.payway_url} style={{ display: 'none' }}>
+          <input type="hidden" name="merchant_id" value={paywayData.merchant_id} />
+          <input type="hidden" name="tran_id" value={paywayData.tran_id} />
+          <input type="hidden" name="amount" value={paywayData.amount} />
+          <input type="hidden" name="hash" value={paywayData.hash} />
+          <input type="hidden" name="firstname" value={paywayData.firstname} />
+          <input type="hidden" name="lastname" value={paywayData.lastname} />
+          <input type="hidden" name="phone" value={paywayData.phone} />
+          <input type="hidden" name="email" value={paywayData.email} />
+          <input type="hidden" name="items" value={paywayData.items} />
+        </form>
+      )}
     </>
   );
 }
