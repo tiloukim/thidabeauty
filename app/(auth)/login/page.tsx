@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 
 declare global {
   interface Window {
@@ -29,13 +30,23 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [telegramLoading, setTelegramLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
+  const turnstileRef = useRef<TurnstileInstance>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+      options: { captchaToken },
+    });
+
+    setCaptchaToken("");
+    turnstileRef.current?.reset();
+
     if (error) {
       setError(error.message);
       setLoading(false);
@@ -135,7 +146,14 @@ export default function LoginPage() {
               required
             />
           </div>
-          <button type="submit" className="auth-btn" disabled={loading}>
+          <Turnstile
+            ref={turnstileRef}
+            siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+            onSuccess={setCaptchaToken}
+            onExpire={() => setCaptchaToken("")}
+            options={{ theme: "light", size: "flexible" }}
+          />
+          <button type="submit" className="auth-btn" disabled={loading || !captchaToken}>
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
